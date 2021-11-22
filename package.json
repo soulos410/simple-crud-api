@@ -1,0 +1,20 @@
+{
+  "name": "simple-crud-api",
+  "version": "1.0.0",
+  "description": "Simple crud api",
+  "main": "index.js",
+  "scripts": {
+    "run-server-dev": "node ./src/index.js --env MODE=DEV --env PORT=3000",
+    "run-server-prod": "node ./src/index.js --env MODE=PROD --env PORT=3001"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulos410/simple-crud-api.git"
+  },
+  "author": "siarhei",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/soulos410/simple-crud-api/issues"
+  },
+  "homepage": "https://github.com/soulos410/simple-crud-api#readme"
+}
