@@ -1,0 +1,17 @@
+### create person
+POST http://localhost:3000/person
+Content-Type: application/json
+
+{
+  "name": "John",
+  "age": 16,
+  "hobbies": ["sport", "traveling"]
+}
+
+### get all stored persons
+GET http://localhost:3000/person
+Content-Type: application/json
+
+{
+
+}

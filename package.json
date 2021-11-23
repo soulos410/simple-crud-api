@@ -4,8 +4,8 @@
   "description": "Simple crud api",
   "main": "index.js",
   "scripts": {
-    "run-server-dev": "node ./src/index.js --env MODE=DEV --env PORT=3000",
-    "run-server-prod": "node ./src/index.js --env MODE=PROD --env PORT=3001"
+    "start:dev": "nodemon ./src/server/simple-crud-api.js",
+    "start:prod": "webpack && webpack-dev-server --config ./webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -13,8 +13,16 @@
   },
   "author": "siarhei",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/soulos410/simple-crud-api/issues"
+  "homepage": "https://github.com/soulos410/simple-crud-api#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "nodemon": "^2.0.15",
+    "uuid": "^8.3.2",
+    "webpack": "5.64.2",
+    "html-webpack-plugin": "5.5.0"
   },
-  "homepage": "https://github.com/soulos410/simple-crud-api#readme"
+  "devDependencies": {
+    "webpack-cli": "4.9.1",
+    "webpack-dev-server": "4.5.0"
+  }
 }
