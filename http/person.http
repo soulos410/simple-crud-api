@@ -4,7 +4,16 @@ Content-Type: application/json
 
 {
   "name": "John",
-  "age": 16,
+  "age": 18,
+  "hobbies": ["sport", "traveling"]
+}
+
+### trying to create person with required values
+POST http://localhost:3000/person
+Content-Type: application/json
+
+{
+  "name": "John",
   "hobbies": ["sport", "traveling"]
 }
 
@@ -12,6 +21,23 @@ Content-Type: application/json
 GET http://localhost:3000/person
 Content-Type: application/json
 
-{
+{}
 
+### get person by id
+GET http://localhost:3000/person/
+Content-Type: application/json
+
+{
+  "id": "b8d51172-96d9-46ce-be21-1ce1752017f8"
+}
+
+### update record
+PUT http://localhost:3000/person/
+Content-Type: application/json
+
+{
+  "id": "b8e95fd6-35af-477e-9636-5f5487197a22",
+  "name": "Jennifer",
+  "age": 15,
+  "hobbies": ["programming"]
 }

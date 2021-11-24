@@ -18,8 +18,7 @@
     "dotenv": "^10.0.0",
     "nodemon": "^2.0.15",
     "uuid": "^8.3.2",
-    "webpack": "5.64.2",
-    "html-webpack-plugin": "5.5.0"
+    "webpack": "5.64.2"
   },
   "devDependencies": {
     "webpack-cli": "4.9.1",

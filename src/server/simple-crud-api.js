@@ -1,6 +1,6 @@
 require("dotenv").config();
 const http = require('http');
-const {v4: uuidV4} = require("uuid");
+const {v4: uuidV4, validate: validateUuid} = require("uuid");
 
 console.log("running on port", process.env.PORT);
 
@@ -13,63 +13,153 @@ class Person {
     this.age = age;
     this.hobbies = hobbies;
   }
+
+  updateData(name, age, hobbies) {
+    this.name = name ? name : this.name;
+    this.age = age ? age : this.age;
+    this.hobbies = hobbies ? hobbies : this.hobbies;
+  }
 }
 
-const requestListener = (req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  const host = req.headers.host;
-  const method = req.method;
-
-  const requestFullUrl = new URL(`${host}${req.url}`);
-
+const requestHandler = (req, requestMethod, res, requestBody) => {
+  const requestFullUrl = new URL(`${req.headers.host}${req.url}`);
   const reqUrlWithoutArgs = req.url.replace(requestFullUrl.search, "");
 
   switch (reqUrlWithoutArgs) {
-    case "person/":
-    case "/person/": {
-      switch (method) {
+    case "/person": {
+      switch (requestMethod) {
         case "GET": {
-          console.log("req", req);
+          res.writeHead(200);
           res.end(JSON.stringify(database));
           break;
         }
         case "POST": {
-          console.log("req", req);
-          validateInputParams(requestFullUrl.searchParams, res);
+          const isValidInputParams = validateInputParams(requestBody);
 
-          const { name, age, hobbies } = extractInputParams(requestFullUrl.searchParams);
+          if (!isValidInputParams) {
+            res.writeHead(400);
 
-          database.push(new Person(name, age, hobbies));
+            res.end("Error: some of parameters are invalid");
+          } else {
+            const { name, age, hobbies } = requestBody;
 
-          console.log("DATABASE?", database);
+            const newPerson = new Person(name, age, hobbies);
 
-          res.writeHead(200);
-          res.end("Successfully add new person");
+            database.push(newPerson);
+
+            res.writeHead(201);
+            res.end(JSON.stringify(newPerson));
+          }
           break;
         }
         default: {
           res.writeHead(404);
-          res.end("Invalid request received");
+          res.end("Invalid request for route /person received");
           break;
         }
       }
       break;
     }
-    case "/person": {
-      console.log("person without id");
-      res.writeHead(200);
-      res.end();
+    case "/person/": {
+      switch(requestMethod) {
+        case "GET": {
+          const { id } = requestBody;
+
+          if (isInvalidId(id)) {
+            res.writeHead(400);
+
+            res.end("Error: invalid id received");
+          } else {
+            const databaseRecordById = database.find((person) => person.id === id);
+
+            if (!databaseRecordById) {
+              res.writeHead(404);
+
+              res.end("Error: person with provided id was not found");
+            } else {
+              res.writeHead(200);
+
+              res.end(JSON.stringify(databaseRecordById));
+            }
+          }
+          break;
+        }
+        case "PUT": {
+          const { id } = requestBody;
+
+          if (isInvalidId(id)) {
+            res.writeHead(400);
+
+            res.end("Error: invalid id received");
+          } else {
+            const personWithProvidedId = database.find((person) => person.id === id);
+
+            if (!personWithProvidedId) {
+              res.writeHead(404);
+
+              res.end("Error: person with provided id was not found");
+            } else {
+              const { name, age, hobbies } = requestBody;
+
+              const areHobbiesValid = Array.isArray(hobbies);
+
+              if (!areHobbiesValid) {
+                res.writeHead(404);
+
+                res.end("Error: hobbies list is not valid");
+              } else {
+                personWithProvidedId.updateData(name, age, hobbies);
+
+                res.writeHead(200);
+
+                res.end(JSON.stringify(personWithProvidedId));
+              }
+            }
+          }
+          break;
+        }
+        case "DELETE": {
+
+          break;
+        }
+        default: {
+          res.writeHead(404);
+          res.end("Invalid request for route /person/ received");
+          break;
+        }
+      }
       break;
     }
     default: {
       res.writeHead(404);
-      res.end(JSON.stringify({error: "Resource not found"}));
+      res.end("Invalid request received");
+      break;
     }
-
   }
+}
+
+const requestListener = (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  let requestBody = "";
+  const method = req.method;
+
+  req.on("data", (data) => {
+    try {
+      const stringData = data.toString();
+
+      requestBody = JSON.parse(stringData);
+    } catch(e) {
+      res.writeHead(400);
+      res.end(`Wrong data received with ${method} method`);
+    }
+  });
+
+  req.on("end", () => {
+    requestHandler(req, method, res, requestBody);
+  })
 };
 
-http.createServer(requestListener).listen(process.env.PORT, (err) => {
+http.createServer(requestListener).listen(process.env.PORT || 3000, (err) => {
   if (err) {
     process.stderr.write("Something went wrong", "utf8");
 
@@ -77,26 +167,12 @@ http.createServer(requestListener).listen(process.env.PORT, (err) => {
   }
 });
 
-const validateInputParams = (searchParams, response) => {
-  const name = searchParams.get("name");
-  const age = searchParams.get("age");
-  const hobbies = searchParams.get("hobbies");
+const validateInputParams = (searchParams) => {
+  const name = searchParams.name;
+  const age = searchParams.age;
+  const hobbies = searchParams.hobbies;
 
-  if (!name || !age || !hobbies) {
-    response.writeHead(404);
-
-    response.end("Error: some of parameters are invalid");
-  }
+  return !(!name || !age || !Array.isArray(hobbies));
 }
 
-const extractInputParams = (searchParams) => {
-  const name = searchParams.get("name");
-  const age = searchParams.get("age");
-  const hobbies = searchParams.get("hobbies");
-
-  console.log(hobbies);
-  console.log(typeof hobbies);
-  console.log(JSON.parse(searchParams));
-
-  return { name, age, hobbies };
-}
+const isInvalidId = (id) => !id || !validateUuid(id);

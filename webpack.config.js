@@ -1,7 +1,6 @@
-require("dotenv").config({ path: "./.env"});
+require("dotenv").config();
 const path = require('path');
 const webpack = require("webpack");
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: './src/client/index.js',
@@ -15,9 +14,6 @@ module.exports = {
     static: './dist',
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      title: "Simple crud api",
-    }),
     new webpack.DefinePlugin({
       "process.env": {
         MODE: JSON.stringify(process.env.MODE),
