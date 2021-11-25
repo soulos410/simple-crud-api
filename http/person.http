@@ -41,3 +41,11 @@ Content-Type: application/json
   "age": 15,
   "hobbies": ["programming"]
 }
+
+### delete record
+DELETE http://localhost:3000/person/
+Content-Type: application/json
+
+{
+  "id": "3686e413-5f94-4ff6-8f79-1972cdc32d81"
+}

@@ -27,6 +27,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
 
   switch (reqUrlWithoutArgs) {
     case "/person": {
+      try {
       switch (requestMethod) {
         case "GET": {
           res.writeHead(200);
@@ -55,10 +56,17 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
         default: {
           res.writeHead(404);
           res.end("Invalid request for route /person received");
+
           break;
         }
       }
       break;
+    } catch(e) {
+        res.writeHead(404);
+        res.end("Error: something went wrong");
+
+        break;
+      }
     }
     case "/person/": {
       switch(requestMethod) {
@@ -119,7 +127,28 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
           break;
         }
         case "DELETE": {
+          console.log("in delete?");
+          const { id } = requestBody;
 
+          if (isInvalidId(id)) {
+            res.writeHead(400);
+            res.end("Error: Invalid id received");
+          } else {
+            const foundPerson = database.find((person) => person.id === id);
+
+            if (!foundPerson) {
+              res.writeHead(404);
+              res.end("Person with received id was not found");
+            } else {
+              console.log("got found person", foundPerson);
+              const foundPersonIndex = database.indexOf(foundPerson);
+
+              database.splice(foundPersonIndex, 1);
+
+              res.writeHead(204);
+              res.end();
+            }
+          }
           break;
         }
         default: {
