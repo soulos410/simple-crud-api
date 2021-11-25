@@ -4,11 +4,11 @@ Content-Type: application/json
 
 {
   "name": "John",
-  "age": 18,
+  "age": 19,
   "hobbies": ["sport", "traveling"]
 }
 
-### trying to create person with required values
+### trying to create person without required values
 POST http://localhost:3000/person
 Content-Type: application/json
 
@@ -47,5 +47,5 @@ DELETE http://localhost:3000/person/
 Content-Type: application/json
 
 {
-  "id": "3686e413-5f94-4ff6-8f79-1972cdc32d81"
+  "id": "dd360ce7-83e5-4f42-b674-92f916b35b11"
 }

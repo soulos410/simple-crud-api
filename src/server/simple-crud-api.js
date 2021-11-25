@@ -1,6 +1,7 @@
 require("dotenv").config();
 const http = require('http');
-const {v4: uuidV4, validate: validateUuid} = require("uuid");
+const {v4: uuidV4} = require("uuid");
+const {validateInputParams, isInvalidId} = require("../utils");
 
 console.log("running on port", process.env.PORT);
 
@@ -127,7 +128,6 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
           break;
         }
         case "DELETE": {
-          console.log("in delete?");
           const { id } = requestBody;
 
           if (isInvalidId(id)) {
@@ -140,7 +140,6 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
               res.writeHead(404);
               res.end("Person with received id was not found");
             } else {
-              console.log("got found person", foundPerson);
               const foundPersonIndex = database.indexOf(foundPerson);
 
               database.splice(foundPersonIndex, 1);
@@ -188,7 +187,7 @@ const requestListener = (req, res) => {
   })
 };
 
-http.createServer(requestListener).listen(process.env.PORT || 3000, (err) => {
+const server = () => http.createServer(requestListener).listen(process.env.PORT || 3000, (err) => {
   if (err) {
     process.stderr.write("Something went wrong", "utf8");
 
@@ -196,12 +195,4 @@ http.createServer(requestListener).listen(process.env.PORT || 3000, (err) => {
   }
 });
 
-const validateInputParams = (searchParams) => {
-  const name = searchParams.name;
-  const age = searchParams.age;
-  const hobbies = searchParams.hobbies;
-
-  return !(!name || !age || !Array.isArray(hobbies));
-}
-
-const isInvalidId = (id) => !id || !validateUuid(id);
+module.exports = { server };
