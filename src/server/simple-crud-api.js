@@ -3,32 +3,30 @@ const http = require('http');
 const {v4: uuidV4} = require("uuid");
 const {validateInputParams, isInvalidId} = require("../utils");
 
-console.log("running on port", process.env.PORT);
-
 const database = [];
 
 class Person {
-  constructor(name, age, hobbies) {
-    this.id = uuidV4();
-    this.name = name;
-    this.age = age;
-    this.hobbies = hobbies;
-  }
+    constructor(name, age, hobbies) {
+        this.id = uuidV4();
+        this.name = name;
+        this.age = age;
+        this.hobbies = hobbies;
+    }
 
-  updateData(name, age, hobbies) {
-    this.name = name ? name : this.name;
-    this.age = age ? age : this.age;
-    this.hobbies = hobbies ? hobbies : this.hobbies;
-  }
+    updateData(name, age, hobbies) {
+        this.name = name ? name : this.name;
+        this.age = age ? age : this.age;
+        this.hobbies = hobbies ? hobbies : this.hobbies;
+    }
 }
 
-const requestHandler = (req, requestMethod, res, requestBody) => {
-  const requestFullUrl = new URL(`${req.headers.host}${req.url}`);
-  const reqUrlWithoutArgs = req.url.replace(requestFullUrl.search, "");
+const routeRegExp = new RegExp("(.\\w*person*.)");
 
-  switch (reqUrlWithoutArgs) {
+const requestHandler = (req, requestMethod, res, requestBody) => {
+  const regexMatch = req.url.match(routeRegExp)[0];
+
+  switch (regexMatch) {
     case "/person": {
-      try {
       switch (requestMethod) {
         case "GET": {
           res.writeHead(200);
@@ -43,7 +41,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
 
             res.end("Error: some of parameters are invalid");
           } else {
-            const { name, age, hobbies } = requestBody;
+            const {name, age, hobbies} = requestBody;
 
             const newPerson = new Person(name, age, hobbies);
 
@@ -62,29 +60,23 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
         }
       }
       break;
-    } catch(e) {
-        res.writeHead(404);
-        res.end("Error: something went wrong");
-
-        break;
-      }
     }
     case "/person/": {
-      switch(requestMethod) {
+      switch (requestMethod) {
         case "GET": {
-          const { id } = requestBody;
+          const id = req.url.replace(regexMatch, "");
 
           if (isInvalidId(id)) {
             res.writeHead(400);
 
-            res.end("Error: invalid id received");
+            res.end(JSON.stringify({message: "Error: invalid id received"}));
           } else {
             const databaseRecordById = database.find((person) => person.id === id);
 
             if (!databaseRecordById) {
               res.writeHead(404);
 
-              res.end("Error: person with provided id was not found");
+              res.end(JSON.stringify({message: "Error: person with provided id was not found"}));
             } else {
               res.writeHead(200);
 
@@ -94,7 +86,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
           break;
         }
         case "PUT": {
-          const { id } = requestBody;
+          const {id} = requestBody;
 
           if (isInvalidId(id)) {
             res.writeHead(400);
@@ -106,9 +98,9 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
             if (!personWithProvidedId) {
               res.writeHead(404);
 
-              res.end("Error: person with provided id was not found");
+              res.end(JSON.stringify({message: "Error: person with provided id was not found"}));
             } else {
-              const { name, age, hobbies } = requestBody;
+              const {name, age, hobbies} = requestBody;
 
               const areHobbiesValid = Array.isArray(hobbies);
 
@@ -128,7 +120,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
           break;
         }
         case "DELETE": {
-          const { id } = requestBody;
+          const id = req.url.replace(regexMatch, "");
 
           if (isInvalidId(id)) {
             res.writeHead(400);
@@ -138,7 +130,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
 
             if (!foundPerson) {
               res.writeHead(404);
-              res.end("Person with received id was not found");
+              res.end(JSON.stringify({message: "Person with received id was not found"}));
             } else {
               const foundPersonIndex = database.indexOf(foundPerson);
 
@@ -152,7 +144,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
         }
         default: {
           res.writeHead(404);
-          res.end("Invalid request for route /person/ received");
+          res.end(JSON.stringify({message: "Invalid request for route /person/ received"}));
           break;
         }
       }
@@ -160,39 +152,38 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
     }
     default: {
       res.writeHead(404);
-      res.end("Invalid request received");
+      res.end(JSON.stringify({message: "Invalid request received"}));
       break;
     }
   }
 }
 
 const requestListener = (req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  let requestBody = "";
-  const method = req.method;
+    res.setHeader("Content-Type", "application/json");
+    let requestBody = "";
+    const method = req.method;
 
-  req.on("data", (data) => {
-    try {
-      const stringData = data.toString();
+    req.on("data", (data) => {
+        try {
+            const stringData = data.toString();
 
-      requestBody = JSON.parse(stringData);
-    } catch(e) {
-      res.writeHead(400);
-      res.end(`Wrong data received with ${method} method`);
-    }
-  });
+            requestBody = JSON.parse(stringData);
+        } catch (e) {
+            res.writeHead(400);
+            res.end(JSON.stringify({message: `Wrong data received with ${method} method`}));
+        }
+    });
 
-  req.on("end", () => {
-    requestHandler(req, method, res, requestBody);
-  })
+    req.on("end", () => {
+        try {
+            requestHandler(req, method, res, requestBody);
+        } catch (e) {
+            res.writeHead(500);
+            res.end(JSON.stringify(e));
+        }
+    })
 };
 
-const server = () => http.createServer(requestListener).listen(process.env.PORT || 3000, (err) => {
-  if (err) {
-    process.stderr.write("Something went wrong", "utf8");
+const server = () => http.createServer(requestListener);
 
-    process.exit(1);
-  }
-});
-
-module.exports = { server };
+module.exports = {server};

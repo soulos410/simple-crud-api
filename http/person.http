@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
   "name": "John",
-  "age": 19,
+  "age": 12,
   "hobbies": ["sport", "traveling"]
 }
 
@@ -19,33 +19,20 @@ Content-Type: application/json
 
 ### get all stored persons
 GET http://localhost:3000/person
-Content-Type: application/json
-
-{}
 
 ### get person by id
-GET http://localhost:3000/person/
-Content-Type: application/json
-
-{
-  "id": "b8d51172-96d9-46ce-be21-1ce1752017f8"
-}
+GET http://localhost:3000/person/137d74e7-6976-4064-a99c-80be50fac061
 
 ### update record
 PUT http://localhost:3000/person/
 Content-Type: application/json
 
 {
-  "id": "b8e95fd6-35af-477e-9636-5f5487197a22",
+  "id": "585d75a6-a63e-4321-b7c2-f715cc3b3cb0",
   "name": "Jennifer",
   "age": 15,
   "hobbies": ["programming"]
 }
 
 ### delete record
-DELETE http://localhost:3000/person/
-Content-Type: application/json
-
-{
-  "id": "dd360ce7-83e5-4f42-b674-92f916b35b11"
-}
+DELETE http://localhost:3000/person/a410168d-d7cd-47ba-98de-d80d81d9c94f
