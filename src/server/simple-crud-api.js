@@ -39,7 +39,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
           if (!isValidInputParams) {
             res.writeHead(400);
 
-            res.end("Error: some of parameters are invalid");
+            res.end(JSON.stringify({messsage: "Error: some of parameters are invalid"}));
           } else {
             const {name, age, hobbies} = requestBody;
 
@@ -54,7 +54,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
         }
         default: {
           res.writeHead(404);
-          res.end("Invalid request for route /person received");
+          res.end(JSON.stringify({message: "Invalid request for route /person received"}));
 
           break;
         }
@@ -91,7 +91,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
           if (isInvalidId(id)) {
             res.writeHead(400);
 
-            res.end("Error: invalid id received");
+            res.end(JSON.stringify({message: "Error: invalid id received"}));
           } else {
             const personWithProvidedId = database.find((person) => person.id === id);
 
@@ -107,7 +107,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
               if (!areHobbiesValid) {
                 res.writeHead(404);
 
-                res.end("Error: hobbies list is not valid");
+                res.end(JSON.stringify({message: "Error: hobbies list is not valid"}));
               } else {
                 personWithProvidedId.updateData(name, age, hobbies);
 
@@ -124,7 +124,7 @@ const requestHandler = (req, requestMethod, res, requestBody) => {
 
           if (isInvalidId(id)) {
             res.writeHead(400);
-            res.end("Error: Invalid id received");
+            res.end(JSON.stringify({message: "Error: Invalid id received"}));
           } else {
             const foundPerson = database.find((person) => person.id === id);
 

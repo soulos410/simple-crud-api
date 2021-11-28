@@ -1,18 +1,13 @@
 require("dotenv").config();
 const {server} = require("../src/server/simple-crud-api");
 const request = require("supertest");
-
-const personObject = {
-  name: "Bobby",
-  age: 25,
-  hobbies: ["sport", "traveling"],
-};
+const {personFixture} = require("./fixtures/personFixture");
 
 let httpServer = server();
 
 const serverPort = `http://localhost:${process.env.PORT || 3000}`;
 
-describe("simple crud api tests", () => {
+describe("simple crud api first scenario test", () => {
   beforeEach(() => {
     httpServer.listen(process.env.PORT || 3000, (err) => {
       if (err) {
@@ -36,21 +31,15 @@ describe("simple crud api tests", () => {
   });
 
   it("should create new person, and then receive this object", () => {
-    const personObject = {
-      name: "Sarah",
-      age: 22,
-      hobbies: ["sport", "programming", "traveling"],
-    };
-
     request(serverPort)
       .post("/person")
-      .send(personObject)
+      .send(personFixture)
       .expect("Content-Type", /json/)
       .expect(201)
       .expect((response) => {
           const {id, ...personWithoutId} = response.body;
 
-          return JSON.stringify(personWithoutId) === JSON.stringify(personObject);
+          return JSON.stringify(personWithoutId) === JSON.stringify(personFixture);
         }
       );
   });
@@ -58,7 +47,7 @@ describe("simple crud api tests", () => {
   it("should create new person and get this object by id", async () => {
     const postRequestResponse = await request(serverPort)
       .post("/person")
-      .send(personObject);
+      .send(personFixture);
 
     const postRequestBody = postRequestResponse.body;
 
@@ -70,7 +59,7 @@ describe("simple crud api tests", () => {
       .expect((response) => {
           const {id, ...recordWithoutId} = response.body;
 
-          return JSON.stringify(recordWithoutId) === JSON.stringify(personObject);
+          return JSON.stringify(recordWithoutId) === JSON.stringify(personFixture);
         }
       );
   });
@@ -85,7 +74,7 @@ describe("simple crud api tests", () => {
 
     const postRequestResponse = await request(serverPort)
       .post("/person")
-      .send(personObject);
+      .send(personFixture);
 
     const postRequestBody = postRequestResponse.body;
 
@@ -103,15 +92,15 @@ describe("simple crud api tests", () => {
       .expect((response) => {
         const {id, ...updatedPersonRecord} = response.body;
 
-        return JSON.stringify(updatedPersonRecord) === JSON.stringify(personObject) &&
-          personObject.id === id;
+        return JSON.stringify(updatedPersonRecord) === JSON.stringify(personFixture) &&
+            personFixture.id === id;
       });
   });
 
   it("should create new person, then try to delete with successful result", async () => {
     const postRequestResponse = await request(serverPort)
         .post("/person")
-        .send(personObject);
+        .send(personFixture);
 
     const { id } = postRequestResponse.body;
 
@@ -124,7 +113,7 @@ describe("simple crud api tests", () => {
   it("should create new person, then delete created person by id, then trying to receive deleted person", async () => {
     const postRequestResponse = await request(serverPort)
         .post("/person")
-        .send(personObject);
+        .send(personFixture);
 
     const {id} = postRequestResponse.body;
 

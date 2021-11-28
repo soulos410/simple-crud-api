@@ -21,18 +21,18 @@ Content-Type: application/json
 GET http://localhost:3000/person
 
 ### get person by id
-GET http://localhost:3000/person/137d74e7-6976-4064-a99c-80be50fac061
+GET http://localhost:3000/person/05c4dfa6-d79b-472e-9b99-ab6e83d4c218
 
 ### update record
-PUT http://localhost:3000/person/
+PUT http://localhost:3000/person/?id=05c4dfa6-d79b-472e-9b99-ab6e83d4c218
 Content-Type: application/json
 
 {
-  "id": "585d75a6-a63e-4321-b7c2-f715cc3b3cb0",
+  "id": "05c4dfa6-d79b-472e-9b99-ab6e83d4c218",
   "name": "Jennifer",
-  "age": 15,
+  "age": 18,
   "hobbies": ["programming"]
 }
 
 ### delete record
-DELETE http://localhost:3000/person/a410168d-d7cd-47ba-98de-d80d81d9c94f
+DELETE http://localhost:3000/person/05c4dfa6-d79b-472e-9b99-ab6e83d4c218
