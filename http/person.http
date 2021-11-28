@@ -1,0 +1,38 @@
+### create person
+POST http://localhost:3000/person
+Content-Type: application/json
+
+{
+  "name": "John",
+  "age": 12,
+  "hobbies": ["sport", "traveling"]
+}
+
+### trying to create person without required values
+POST http://localhost:3000/person
+Content-Type: application/json
+
+{
+  "name": "John",
+  "hobbies": ["sport", "traveling"]
+}
+
+### get all stored persons
+GET http://localhost:3000/person
+
+### get person by id
+GET http://localhost:3000/person/05c4dfa6-d79b-472e-9b99-ab6e83d4c218
+
+### update record
+PUT http://localhost:3000/person/?id=05c4dfa6-d79b-472e-9b99-ab6e83d4c218
+Content-Type: application/json
+
+{
+  "id": "05c4dfa6-d79b-472e-9b99-ab6e83d4c218",
+  "name": "Jennifer",
+  "age": 18,
+  "hobbies": ["programming"]
+}
+
+### delete record
+DELETE http://localhost:3000/person/05c4dfa6-d79b-472e-9b99-ab6e83d4c218
